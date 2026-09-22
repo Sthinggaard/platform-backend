@@ -1,0 +1,1 @@
+ACTIVATED_WORKSPACE_PATH = "/setup"

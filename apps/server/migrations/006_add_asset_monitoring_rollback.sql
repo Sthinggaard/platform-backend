@@ -1,0 +1,10 @@
+-- Rollback for UC-01/02/03 tables
+DROP TABLE IF EXISTS control_share_links;
+DROP TABLE IF EXISTS control_evidence;
+DROP TABLE IF EXISTS control_mappings;
+DROP TABLE IF EXISTS controls;
+DROP TABLE IF EXISTS asset_findings;
+DROP TABLE IF EXISTS asset_evidence_signals;
+DROP TABLE IF EXISTS asset_status_history;
+DROP TABLE IF EXISTS asset_connections;
+DROP TABLE IF EXISTS assets;

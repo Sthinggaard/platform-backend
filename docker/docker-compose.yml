@@ -1,0 +1,403 @@
+services:
+  # FastAPI application
+  api:
+    build:
+      context: ../apps/server
+      dockerfile: Dockerfile
+    container_name: risklence-api
+    env_file:
+      - ../.env.local
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      PORT: ${RISKLENCE_LOCAL_API_PORT}
+      # What a Collector is told to connect back to. Unset, this defaults to the
+      # production origin, so a local Collector was handed an activation command
+      # pointing at api.risklence.com. The docker variant is separate because a
+      # container cannot reach the host's own 127.0.0.1.
+      SCANNER_API_BASE_URL: ${SCANNER_API_BASE_URL:-http://127.0.0.1:${RISKLENCE_LOCAL_API_PORT}}
+      SCANNER_DOCKER_API_BASE_URL: ${SCANNER_DOCKER_API_BASE_URL:-http://host.docker.internal:${RISKLENCE_LOCAL_API_PORT}}
+      ALLOWED_ORIGINS: ${RISKLENCE_ALLOWED_ORIGINS:-["http://localhost:8080","http://127.0.0.1:8080"]}
+      APP_BASE_URL: http://localhost:${RISKLENCE_LOCAL_API_PORT}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:3000}
+      AUTH0_CALLBACK_URL: ${AUTH0_CALLBACK_URL:-http://localhost:3000/api/auth/callback}
+      SSO_CALLBACK_URL: ${SSO_CALLBACK_URL:-http://localhost:3000/auth/sso/callback}
+      DATABASE__POSTGRES_HOST: postgres
+      DATABASE__POSTGRES_PORT: 5432
+      DATABASE__POSTGRES_USER: risklence
+      DATABASE__POSTGRES_PASSWORD: risklence_dev_password
+      DATABASE__POSTGRES_DB: risklence_db
+      DATABASE__MONGODB_URI: mongodb://mongodb:27017
+      DATABASE__MONGODB_DB: risklence_scans
+      REDIS_URL: redis://redis:6379/0
+      # Mail goes to the local catcher, never to a real mailbox. Without these
+      # the send functions no-op silently and the signup journey dead-ends at
+      # the verification code (#219). TLS off: Mailpit speaks plain SMTP.
+      EMAIL_SMTP_HOST: mailpit
+      EMAIL_SMTP_PORT: "1025"
+      EMAIL_SMTP_USE_TLS: "false"
+      EMAIL_FROM: no-reply@risklence.local
+      DISCOVERY_EVIDENCE_LOCAL_STORAGE_DIR: /app/var/discovery-evidence
+    # BUG-DISC-10 — evidence payloads are written by the API and read by the
+    # discovery worker, which is a separate container. The storage backend
+    # defaults to the relative path "var/discovery-evidence", so each container
+    # wrote into its own filesystem and the worker could never read what the
+    # API stored: every package failed with "No such file or directory" and no
+    # discovery run could ever produce an asset. A shared named volume at one
+    # absolute path gives both processes the same storage, and survives a
+    # rebuild instead of taking the evidence with it.
+    volumes:
+      - discovery_evidence_data:/app/var/discovery-evidence
+      # The working tree, shadowing the src baked in at build time.
+      #
+      # ⚠️ **Without this the container serves whatever the image was built
+      # with**, and a backend change is invisible until somebody rebuilds. The
+      # only way to see current code was to stop this container and run uvicorn
+      # on the host — which breaks login, because the BFF reaches the API at
+      # `http://api:8000` on this network and cannot see a host process. So the
+      # choice was "log in" or "see your change", and it cost two misleading
+      # comparisons on 2026-09-11 before anyone noticed which was being served.
+      #
+      # ⚠️ `src` only. `alembic/` and `scripts/` stay baked, so a **migration**
+      # still needs a rebuild — the mount does not make schema changes live.
+      #
+      # Local development only. Production builds from the Dockerfile and never
+      # reads this file.
+      - ../apps/server/src:/app/src
+    # --reload, so a saved file restarts the worker. It costs a little memory
+    # and will interrupt a request in flight; that is the trade for not having
+    # to choose between logging in and seeing your own work.
+    command: sh -c "uvicorn src.api.main:app --host 0.0.0.0 --port ${PORT:-8000} --reload"
+    ports:
+      - "${RISKLENCE_LOCAL_API_PORT}:${RISKLENCE_LOCAL_API_PORT}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mailpit:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${RISKLENCE_LOCAL_API_PORT}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - risklence-network
+
+  # Backend-for-frontend (BFF) gateway - sits in front of the FastAPI app
+  bff:
+    build:
+      context: ..
+      dockerfile: apps/bff/Dockerfile
+    container_name: risklence-bff
+    env_file:
+      - ../.env.local
+    environment:
+      BFF_UPSTREAM_BASE: http://api:${RISKLENCE_LOCAL_API_PORT}
+      BFF_UPSTREAM_TIMEOUT_SECONDS: ${BFF_UPSTREAM_TIMEOUT_SECONDS:-15}
+      BFF_RATE_LIMIT_PER_MINUTE: ${BFF_RATE_LIMIT_PER_MINUTE:-240}
+      BFF_ALLOWED_ORIGINS: ${BFF_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      BFF_PORT: ${RISKLENCE_LOCAL_BFF_PORT}
+      BFF_ENV_FILE: /dev/null
+      BFF_ENV_LOCAL_FILE: /dev/null
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${RISKLENCE_LOCAL_BFF_PORT}:${RISKLENCE_LOCAL_BFF_PORT}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${RISKLENCE_LOCAL_BFF_PORT}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - risklence-network
+
+  # PostgreSQL - Primary database for structured compliance data
+  postgres:
+    image: postgres:16-alpine
+    container_name: risklence-postgres
+    environment:
+      POSTGRES_USER: risklence
+      POSTGRES_PASSWORD: risklence_dev_password
+      POSTGRES_DB: risklence_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${RISKLENCE_LOCAL_POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U risklence"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - risklence-network
+
+  # MongoDB - Flexible storage for scan results
+  mongodb:
+    image: mongo:7
+    container_name: risklence-mongodb
+    environment:
+      MONGO_INITDB_DATABASE: risklence_scans
+    ports:
+      - "${RISKLENCE_LOCAL_MONGODB_PORT}:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - risklence-network
+
+  # Redis - Caching and Celery message broker
+  redis:
+    image: redis:7-alpine
+    container_name: risklence-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "${RISKLENCE_LOCAL_REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - risklence-network
+
+  # Mailpit - the dev mail catcher.
+  #
+  # Without an SMTP host the API's four send functions return normally without
+  # sending anything (see tasks/active/email-fails-silently-without-smtp.md,
+  # Plane #219), so signup verification codes, invites and password resets all
+  # vanished silently in dev. That made the signup journey untestable locally:
+  # a valid challenge exists, the code is only stored as a hash, and the
+  # plaintext was handed to a function that discarded it.
+  #
+  # Staging got this on 2026-08-17 so UAT could finish signing up. Dev needs it
+  # for the same reason and one more: defects are meant to be reproduced and
+  # fixed here before dev is promoted to staging, which cannot happen if the
+  # journey dead-ends locally at the verification step.
+  #
+  # Not behind the dev-tools profile: this is part of the working stack, not an
+  # optional inspector like pgAdmin. Mail silently disappearing is the failure
+  # it exists to prevent.
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: risklence-mailpit
+    environment:
+      MP_MAX_MESSAGES: "500"
+      MP_SMTP_AUTH_ACCEPT_ANY: "true"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "true"
+    ports:
+      # SMTP for the API, HTTP for the inbox UI and its /api/v1 read API.
+      - "${RISKLENCE_LOCAL_MAILPIT_SMTP_PORT}:1025"
+      - "${RISKLENCE_LOCAL_MAILPIT_HTTP_PORT}:8025"
+    volumes:
+      - mailpit_data:/data
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - risklence-network
+
+  # pgAdmin - PostgreSQL web interface (optional, for development)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: risklence-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@risklence.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - risklence-network
+    profiles:
+      - dev-tools
+
+  # Mongo Express - MongoDB web interface (optional, for development)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: risklence-mongo-express
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+    networks:
+      - risklence-network
+    profiles:
+      - dev-tools
+
+  # Activation audit outbox worker (Epic 3 UC-TN-06) - optional operational processor
+  activation-audit-outbox-worker:
+    build:
+      # Must match the api service's context: apps/server/Dockerfile does
+      # `COPY alembic.ini ./alembic.ini`, which only resolves when the build
+      # context is apps/server. Pointing at the repo root fails with
+      # "/alembic.ini: not found", which is why these workers never built.
+      context: ../apps/server
+      dockerfile: Dockerfile
+    container_name: risklence-activation-audit-outbox-worker
+    env_file:
+      - ../.env.local
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DATABASE__POSTGRES_HOST: postgres
+      DATABASE__POSTGRES_PORT: 5432
+      DATABASE__POSTGRES_USER: risklence
+      DATABASE__POSTGRES_PASSWORD: risklence_dev_password
+      DATABASE__POSTGRES_DB: risklence_db
+      DATABASE__MONGODB_URI: mongodb://mongodb:27017
+      DATABASE__MONGODB_DB: risklence_scans
+      REDIS_URL: redis://redis:6379/0
+      ACTIVATION_AUDIT_OUTBOX_INTERVAL_SECONDS: ${ACTIVATION_AUDIT_OUTBOX_INTERVAL_SECONDS:-30}
+      ACTIVATION_AUDIT_OUTBOX_WARN_PENDING_THRESHOLD: ${ACTIVATION_AUDIT_OUTBOX_WARN_PENDING_THRESHOLD:-100}
+      ACTIVATION_AUDIT_OUTBOX_WARN_OLDEST_SECONDS: ${ACTIVATION_AUDIT_OUTBOX_WARN_OLDEST_SECONDS:-300}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks:
+      - risklence-network
+    command: >
+      sh -c "python scripts/process_activation_audit_outbox.py
+             --loop
+             --interval-seconds $${ACTIVATION_AUDIT_OUTBOX_INTERVAL_SECONDS}
+             --warn-pending-threshold $${ACTIVATION_AUDIT_OUTBOX_WARN_PENDING_THRESHOLD}
+             --warn-oldest-seconds $${ACTIVATION_AUDIT_OUTBOX_WARN_OLDEST_SECONDS}"
+    profiles:
+      - workers
+
+  # Step 4.2 Part 2 (DISC-22) — the Discovery Execution Pipeline's Celery
+  # worker + beat scheduler. Same build/env-var shape as
+  # activation-audit-outbox-worker above; opt-in via the same "workers"
+  # profile rather than started by default.
+  discovery-execution-worker:
+    build:
+      # Must match the api service's context: apps/server/Dockerfile does
+      # `COPY alembic.ini ./alembic.ini`, which only resolves when the build
+      # context is apps/server. Pointing at the repo root fails with
+      # "/alembic.ini: not found", which is why these workers never built.
+      context: ../apps/server
+      dockerfile: Dockerfile
+    container_name: risklence-discovery-execution-worker
+    env_file:
+      - ../.env.local
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DATABASE__POSTGRES_HOST: postgres
+      DATABASE__POSTGRES_PORT: 5432
+      DATABASE__POSTGRES_USER: risklence
+      DATABASE__POSTGRES_PASSWORD: risklence_dev_password
+      DATABASE__POSTGRES_DB: risklence_db
+      DATABASE__MONGODB_URI: mongodb://mongodb:27017
+      DATABASE__MONGODB_DB: risklence_scans
+      REDIS_URL: redis://redis:6379/0
+      DISCOVERY_EVIDENCE_LOCAL_STORAGE_DIR: /app/var/discovery-evidence
+    # BUG-DISC-10 — evidence payloads are written by the API and read by the
+    # discovery worker, which is a separate container. The storage backend
+    # defaults to the relative path "var/discovery-evidence", so each container
+    # wrote into its own filesystem and the worker could never read what the
+    # API stored: every package failed with "No such file or directory" and no
+    # discovery run could ever produce an asset. A shared named volume at one
+    # absolute path gives both processes the same storage, and survives a
+    # rebuild instead of taking the evidence with it.
+    volumes:
+      - discovery_evidence_data:/app/var/discovery-evidence
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks:
+      - risklence-network
+    # The image built from apps/server/Dockerfile puts the code at /app with
+    # dependencies already installed, so there is no /app/apps/server and no
+    # need to poetry-install at start.
+    command: ["celery", "-A", "src.core.celery_app", "worker", "--loglevel=info"]
+    profiles:
+      - workers
+
+  discovery-execution-beat:
+    build:
+      # Must match the api service's context: apps/server/Dockerfile does
+      # `COPY alembic.ini ./alembic.ini`, which only resolves when the build
+      # context is apps/server. Pointing at the repo root fails with
+      # "/alembic.ini: not found", which is why these workers never built.
+      context: ../apps/server
+      dockerfile: Dockerfile
+    container_name: risklence-discovery-execution-beat
+    env_file:
+      - ../.env.local
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DATABASE__POSTGRES_HOST: postgres
+      DATABASE__POSTGRES_PORT: 5432
+      DATABASE__POSTGRES_USER: risklence
+      DATABASE__POSTGRES_PASSWORD: risklence_dev_password
+      DATABASE__POSTGRES_DB: risklence_db
+      DATABASE__MONGODB_URI: mongodb://mongodb:27017
+      DATABASE__MONGODB_DB: risklence_scans
+      REDIS_URL: redis://redis:6379/0
+      DISCOVERY_EVIDENCE_LOCAL_STORAGE_DIR: /app/var/discovery-evidence
+    # BUG-DISC-10 — evidence payloads are written by the API and read by the
+    # discovery worker, which is a separate container. The storage backend
+    # defaults to the relative path "var/discovery-evidence", so each container
+    # wrote into its own filesystem and the worker could never read what the
+    # API stored: every package failed with "No such file or directory" and no
+    # discovery run could ever produce an asset. A shared named volume at one
+    # absolute path gives both processes the same storage, and survives a
+    # rebuild instead of taking the evidence with it.
+    volumes:
+      - discovery_evidence_data:/app/var/discovery-evidence
+    depends_on:
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks:
+      - risklence-network
+    command: ["celery", "-A", "src.core.celery_app", "beat", "--loglevel=info"]
+    profiles:
+      - workers
+
+volumes:
+  discovery_evidence_data:
+    driver: local
+  postgres_data:
+    driver: local
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+  mailpit_data:
+    driver: local
+
+networks:
+  risklence-network:
+    driver: bridge

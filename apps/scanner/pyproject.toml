@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "risklence-scanner"
+version = "0.1.0"
+description = "Risklence Scanner agent — installs on operator infrastructure, runs approved discovery/vulnerability tools (Nmap/Subfinder/Nuclei), and reports results back to the Risklence platform."
+authors = ["Risklence Team"]
+readme = "README.md"
+packages = [{ include = "scanner_agent" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+click = "^8.1.7"
+requests = "^2.31.0"
+defusedxml = "^0.7.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+responses = "^0.24.1"
+
+[tool.poetry.scripts]
+risklence-scanner = "scanner_agent.cli:cli"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

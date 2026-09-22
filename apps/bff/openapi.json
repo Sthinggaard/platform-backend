@@ -1,0 +1,2562 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BFF",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "summary": "Metrics",
+        "operationId": "metrics_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/onboarding/sessions": {
+      "post": {
+        "summary": "Start Public Onboarding Session",
+        "operationId": "start_public_onboarding_session_public_onboarding_sessions_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicOnboardingSessionOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/onboarding/sessions/{session_id}": {
+      "get": {
+        "summary": "Get Public Onboarding Session",
+        "operationId": "get_public_onboarding_session_public_onboarding_sessions__session_id__get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicOnboardingResumeOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update Public Onboarding Session",
+        "operationId": "update_public_onboarding_session_public_onboarding_sessions__session_id__patch",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Payload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicOnboardingDraftOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/onboarding/sessions/{session_id}/cvr": {
+      "post": {
+        "summary": "Enrich Public Cvr",
+        "operationId": "enrich_public_cvr_public_onboarding_sessions__session_id__cvr_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CvrEnrichmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CvrEnrichmentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/onboarding/sessions/{session_id}/cvr/lookup": {
+      "post": {
+        "summary": "Enrich Public Cvr Lookup",
+        "operationId": "enrich_public_cvr_lookup_public_onboarding_sessions__session_id__cvr_lookup_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CvrEnrichmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CvrLookupResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/onboarding/sessions/{session_id}/business-context": {
+      "post": {
+        "summary": "Refine Public Business Context",
+        "operationId": "refine_public_business_context_public_onboarding_sessions__session_id__business_context_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BusinessContextRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CvrLookupResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/onboarding/org-lookup": {
+      "post": {
+        "summary": "Lookup Public Org",
+        "operationId": "lookup_public_org_public_onboarding_org_lookup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgLookupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgLookupResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/onboarding/org-confirm": {
+      "post": {
+        "summary": "Confirm Public Org",
+        "operationId": "confirm_public_org_public_onboarding_org_confirm_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgConfirmRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgConfirmResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/onboarding/sessions/{session_id}/baseline": {
+      "post": {
+        "summary": "Generate Public Baseline",
+        "operationId": "generate_public_baseline_public_onboarding_sessions__session_id__baseline_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BaselineRiskRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaselineRiskResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get Public Baseline",
+        "operationId": "get_public_baseline_public_onboarding_sessions__session_id__baseline_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaselineRiskResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/onboarding/sessions/{session_id}/finalize": {
+      "post": {
+        "summary": "Finalize Public Onboarding Session",
+        "operationId": "finalize_public_onboarding_session_public_onboarding_sessions__session_id__finalize_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinalizePublicOnboardingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinalizePublicOnboardingResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/activate/redeem": {
+      "post": {
+        "summary": "Redeem Activation",
+        "operationId": "redeem_activation_app_activate_redeem_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedeemActivationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedeemActivationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/auth/signup/start": {
+      "post": {
+        "summary": "App Signup Start",
+        "operationId": "app_signup_start_app_auth_signup_start_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupStartRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupStartResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/auth/signup/verify": {
+      "post": {
+        "summary": "App Signup Verify",
+        "operationId": "app_signup_verify_app_auth_signup_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupVerifyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/auth/signup/resend": {
+      "post": {
+        "summary": "App Signup Resend",
+        "operationId": "app_signup_resend_app_auth_signup_resend_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupResendRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupStartResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/workspace/bootstrap": {
+      "get": {
+        "summary": "Get Workspace Bootstrap",
+        "operationId": "get_workspace_bootstrap_app_workspace_bootstrap_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceBootstrapResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BaselineRiskRequest": {
+        "properties": {
+          "forceRecompute": {
+            "type": "boolean",
+            "title": "Forcerecompute",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "BaselineRiskRequest"
+      },
+      "BaselineRiskResponse": {
+        "properties": {
+          "sessionId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sessionid"
+          },
+          "expiresAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiresat"
+          },
+          "baseline": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline"
+          },
+          "modelVersion": {
+            "type": "string",
+            "title": "Modelversion"
+          },
+          "baselineRiskLandscape": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baselinerisklandscape"
+          },
+          "baselineStatus": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baselinestatus"
+          },
+          "baselineComputedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baselinecomputedat"
+          },
+          "assumptionStatus": {
+            "type": "string",
+            "title": "Assumptionstatus"
+          },
+          "requiresHumanReview": {
+            "type": "boolean",
+            "title": "Requireshumanreview"
+          }
+        },
+        "type": "object",
+        "required": [
+          "modelVersion",
+          "assumptionStatus",
+          "requiresHumanReview"
+        ],
+        "title": "BaselineRiskResponse"
+      },
+      "BusinessContextRequest": {
+        "properties": {
+          "primaryBusinessActivity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PrimaryBusinessActivity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "criticalBusinessActivity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CriticalBusinessActivity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "customerVisibleImpact": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/CustomerVisibleImpact"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customervisibleimpact"
+          },
+          "timeSensitivity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TimeSensitivity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hardToReplaceQuickly": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/HardToReplaceQuickly"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hardtoreplacequickly"
+          },
+          "operationalReach": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OperationalReach"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "BusinessContextRequest"
+      },
+      "CriticalBusinessActivity": {
+        "type": "string",
+        "enum": [
+          "create",
+          "serve_customers",
+          "fulfil_orders",
+          "plan_and_make",
+          "deliver_goods"
+        ],
+        "title": "CriticalBusinessActivity"
+      },
+      "CustomerVisibleImpact": {
+        "type": "string",
+        "enum": [
+          "late_or_missed_deliveries",
+          "cannot_place_or_pay_for_orders",
+          "cannot_reach_support",
+          "product_or_service_stops_working",
+          "wrong_or_delayed_information"
+        ],
+        "title": "CustomerVisibleImpact",
+        "description": "What customers would notice first if operations stopped. Multi-select \u2014\nmore than one of these is commonly true at once."
+      },
+      "CvrEnrichmentRequest": {
+        "properties": {
+          "cvr": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Cvr"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "cvr"
+        ],
+        "title": "CvrEnrichmentRequest"
+      },
+      "CvrEnrichmentResponse": {
+        "properties": {
+          "cvr": {
+            "type": "string",
+            "title": "Cvr"
+          },
+          "legalName": {
+            "type": "string",
+            "title": "Legalname"
+          },
+          "tradeName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tradename"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "postalCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postalcode"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country",
+            "default": "DK"
+          },
+          "industryCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industrycode"
+          },
+          "industry": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industry"
+          },
+          "sizeBracket": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sizebracket"
+          },
+          "geography": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geography"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cvr",
+          "legalName"
+        ],
+        "title": "CvrEnrichmentResponse"
+      },
+      "CvrLookupDraftOrganisationResponse": {
+        "properties": {
+          "cvr": {
+            "type": "string",
+            "title": "Cvr"
+          },
+          "legalName": {
+            "type": "string",
+            "title": "Legalname"
+          },
+          "tradeName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tradename"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "postalCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postalcode"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "industryCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industrycode"
+          },
+          "industry": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industry"
+          },
+          "sizeBracket": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sizebracket"
+          },
+          "geography": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geography"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cvr",
+          "legalName"
+        ],
+        "title": "CvrLookupDraftOrganisationResponse"
+      },
+      "CvrLookupResponse": {
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "title": "Sessionid"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expiresat"
+          },
+          "nextStep": {
+            "type": "string",
+            "title": "Nextstep"
+          },
+          "draftOrganisation": {
+            "$ref": "#/components/schemas/CvrLookupDraftOrganisationResponse"
+          },
+          "assumptionPreview": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Assumptionpreview"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sessionId",
+          "expiresAt",
+          "nextStep",
+          "draftOrganisation",
+          "assumptionPreview"
+        ],
+        "title": "CvrLookupResponse"
+      },
+      "FinalizePublicOnboardingRequest": {
+        "properties": {},
+        "additionalProperties": false,
+        "type": "object",
+        "title": "FinalizePublicOnboardingRequest"
+      },
+      "FinalizePublicOnboardingResponse": {
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "title": "Sessionid"
+          },
+          "draftStatus": {
+            "type": "string",
+            "title": "Draftstatus"
+          },
+          "redirectUrl": {
+            "type": "string",
+            "title": "Redirecturl"
+          },
+          "tokenExpiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Tokenexpiresat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sessionId",
+          "draftStatus",
+          "redirectUrl",
+          "tokenExpiresAt"
+        ],
+        "title": "FinalizePublicOnboardingResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HardToReplaceQuickly": {
+        "type": "string",
+        "enum": [
+          "key_people_or_expertise",
+          "a_supplier_or_partner",
+          "physical_stock_or_equipment",
+          "a_licence_or_approval",
+          "customer_trust"
+        ],
+        "title": "HardToReplaceQuickly",
+        "description": "What would be genuinely hard to replace on short notice. Multi-select \u2014\na business can have more than one true single point of failure."
+      },
+      "OperationalReach": {
+        "type": "string",
+        "enum": [
+          "online",
+          "single_location",
+          "multiple_locations",
+          "many_sites_or_partners"
+        ],
+        "title": "OperationalReach"
+      },
+      "OrgConfirmRequest": {
+        "properties": {
+          "vat": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Vat"
+          },
+          "sessionId": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 3,
+            "title": "Sessionid"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "vat",
+          "sessionId",
+          "confirmed"
+        ],
+        "title": "OrgConfirmRequest"
+      },
+      "OrgConfirmResponse": {
+        "properties": {
+          "vat": {
+            "type": "string",
+            "title": "Vat"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "industryCluster": {
+            "type": "string",
+            "title": "Industrycluster"
+          },
+          "orgSizeBand": {
+            "type": "string",
+            "title": "Orgsizeband"
+          },
+          "legalFormBand": {
+            "type": "string",
+            "title": "Legalformband"
+          },
+          "siteCount": {
+            "type": "integer",
+            "title": "Sitecount"
+          },
+          "multiSite": {
+            "type": "boolean",
+            "title": "Multisite"
+          },
+          "lifecycleStage": {
+            "type": "string",
+            "title": "Lifecyclestage"
+          },
+          "confirmationTimestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Confirmationtimestamp"
+          },
+          "sessionId": {
+            "type": "string",
+            "title": "Sessionid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vat",
+          "name",
+          "industryCluster",
+          "orgSizeBand",
+          "legalFormBand",
+          "siteCount",
+          "multiSite",
+          "lifecycleStage",
+          "confirmationTimestamp",
+          "sessionId"
+        ],
+        "title": "OrgConfirmResponse"
+      },
+      "OrgLookupRequest": {
+        "properties": {
+          "vat": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Vat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "vat"
+        ],
+        "title": "OrgLookupRequest"
+      },
+      "OrgLookupResponse": {
+        "properties": {
+          "vat": {
+            "type": "string",
+            "title": "Vat"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "legalForm": {
+            "type": "string",
+            "title": "Legalform"
+          },
+          "industry": {
+            "type": "string",
+            "title": "Industry"
+          },
+          "orgSizeBand": {
+            "type": "string",
+            "title": "Orgsizeband"
+          },
+          "employeeCount": {
+            "type": "integer",
+            "title": "Employeecount"
+          },
+          "siteCount": {
+            "type": "integer",
+            "title": "Sitecount"
+          },
+          "multiSite": {
+            "type": "boolean",
+            "title": "Multisite"
+          },
+          "lifecycleStage": {
+            "type": "string",
+            "title": "Lifecyclestage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vat",
+          "name",
+          "legalForm",
+          "industry",
+          "orgSizeBand",
+          "employeeCount",
+          "siteCount",
+          "multiSite",
+          "lifecycleStage"
+        ],
+        "title": "OrgLookupResponse"
+      },
+      "PrimaryBusinessActivity": {
+        "type": "string",
+        "enum": [
+          "digital_products",
+          "client_expertise",
+          "physical_products",
+          "sell_or_distribute",
+          "move_goods_or_people"
+        ],
+        "title": "PrimaryBusinessActivity"
+      },
+      "PublicOnboardingDraftOrganisationOut": {
+        "properties": {
+          "cvr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cvr"
+          },
+          "legalName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legalname"
+          },
+          "tradeName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tradename"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "postalCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postalcode"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "industryCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industrycode"
+          },
+          "sizeBracket": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sizebracket"
+          },
+          "geography": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geography"
+          },
+          "locations": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locations"
+          },
+          "itDependency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Itdependency"
+          },
+          "riskAppetite": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Riskappetite"
+          },
+          "selectedAssetCategories": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selectedassetcategories"
+          },
+          "regulatoryFlags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regulatoryflags"
+          },
+          "baselineStatus": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baselinestatus"
+          }
+        },
+        "type": "object",
+        "title": "PublicOnboardingDraftOrganisationOut"
+      },
+      "PublicOnboardingDraftOut": {
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "title": "Sessionid"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expiresat"
+          },
+          "currentStep": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currentstep"
+          },
+          "cvr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cvr"
+          },
+          "legalName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legalname"
+          },
+          "tradeName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tradename"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "postalCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postalcode"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "industryCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industrycode"
+          },
+          "sizeBracket": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sizebracket"
+          },
+          "geography": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geography"
+          },
+          "locations": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locations"
+          },
+          "itDependency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Itdependency"
+          },
+          "riskAppetite": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Riskappetite"
+          },
+          "selectedAssetCategories": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selectedassetcategories"
+          },
+          "regulatoryFlags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regulatoryflags"
+          },
+          "baselineStatus": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baselinestatus"
+          },
+          "modelVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modelversion"
+          },
+          "baselineRiskLandscape": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baselinerisklandscape"
+          },
+          "draftOrganisation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicOnboardingDraftOrganisationOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "sessionId",
+          "expiresAt"
+        ],
+        "title": "PublicOnboardingDraftOut"
+      },
+      "PublicOnboardingResumeCompanyDetailsOut": {
+        "properties": {
+          "legalName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legalname"
+          },
+          "industryCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industrycode"
+          },
+          "geography": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geography"
+          }
+        },
+        "type": "object",
+        "title": "PublicOnboardingResumeCompanyDetailsOut"
+      },
+      "PublicOnboardingResumeDraftSnapshotOut": {
+        "properties": {
+          "cvr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cvr"
+          },
+          "companyDetails": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicOnboardingResumeCompanyDetailsOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "riskAppetite": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Riskappetite"
+          },
+          "selectedAssetCategories": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selectedassetcategories"
+          },
+          "baselineComputed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baselinecomputed"
+          }
+        },
+        "type": "object",
+        "title": "PublicOnboardingResumeDraftSnapshotOut"
+      },
+      "PublicOnboardingResumeOut": {
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "title": "Sessionid"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expiresat"
+          },
+          "currentStep": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currentstep"
+          },
+          "draftSnapshot": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicOnboardingResumeDraftSnapshotOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "nextStep": {
+            "type": "string",
+            "title": "Nextstep"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sessionId",
+          "expiresAt",
+          "nextStep"
+        ],
+        "title": "PublicOnboardingResumeOut"
+      },
+      "PublicOnboardingSessionOut": {
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "title": "Sessionid"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expiresat"
+          },
+          "nextStep": {
+            "type": "string",
+            "title": "Nextstep"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sessionId",
+          "expiresAt",
+          "nextStep"
+        ],
+        "title": "PublicOnboardingSessionOut"
+      },
+      "RedeemActivationRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 12,
+            "title": "Token"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "RedeemActivationRequest"
+      },
+      "RedeemActivationResponse": {
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "title": "Outcome",
+            "default": "ACTIVATED"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "organizationId": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Organizationid"
+          },
+          "organizationName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Organizationname"
+          },
+          "organizationSlug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Organizationslug"
+          },
+          "userId": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userid"
+          },
+          "userEmail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Useremail"
+          },
+          "workspaceUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Workspaceurl"
+          },
+          "activatedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activatedat"
+          },
+          "modelVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modelversion"
+          }
+        },
+        "type": "object",
+        "title": "RedeemActivationResponse"
+      },
+      "SignupResendRequest": {
+        "properties": {
+          "activationToken": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 12,
+            "title": "Activationtoken"
+          },
+          "challengeId": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Challengeid"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "activationToken",
+          "challengeId"
+        ],
+        "title": "SignupResendRequest"
+      },
+      "SignupStartRequest": {
+        "properties": {
+          "activationToken": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 12,
+            "title": "Activationtoken"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 8,
+            "title": "Password"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "activationToken",
+          "email",
+          "password"
+        ],
+        "title": "SignupStartRequest"
+      },
+      "SignupStartResponse": {
+        "properties": {
+          "challengeId": {
+            "type": "string",
+            "title": "Challengeid"
+          },
+          "maskedDestination": {
+            "type": "string",
+            "title": "Maskeddestination"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expiresat"
+          },
+          "verificationMethod": {
+            "type": "string",
+            "title": "Verificationmethod"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "challengeId",
+          "maskedDestination",
+          "expiresAt",
+          "verificationMethod",
+          "message"
+        ],
+        "title": "SignupStartResponse"
+      },
+      "SignupVerifyRequest": {
+        "properties": {
+          "activationToken": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 12,
+            "title": "Activationtoken"
+          },
+          "challengeId": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Challengeid"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 12,
+            "minLength": 4,
+            "title": "Code"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "activationToken",
+          "challengeId",
+          "code"
+        ],
+        "title": "SignupVerifyRequest"
+      },
+      "SignupVerifyResponse": {
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "title": "Accesstoken"
+          },
+          "tokenType": {
+            "type": "string",
+            "title": "Tokentype"
+          },
+          "user": {
+            "$ref": "#/components/schemas/SignupVerifyUser"
+          },
+          "tenant": {
+            "$ref": "#/components/schemas/SignupVerifyTenant"
+          },
+          "workspaceUrl": {
+            "type": "string",
+            "title": "Workspaceurl"
+          },
+          "activatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Activatedat"
+          },
+          "modelVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modelversion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accessToken",
+          "tokenType",
+          "user",
+          "tenant",
+          "workspaceUrl",
+          "activatedAt"
+        ],
+        "title": "SignupVerifyResponse"
+      },
+      "SignupVerifyTenant": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "ssoRequired": {
+            "type": "boolean",
+            "title": "Ssorequired"
+          },
+          "localLoginEnabled": {
+            "type": "boolean",
+            "title": "Localloginenabled"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "ssoRequired",
+          "localLoginEnabled"
+        ],
+        "title": "SignupVerifyTenant"
+      },
+      "SignupVerifyUser": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "organizationId": {
+            "type": "integer",
+            "title": "Organizationid"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "emailVerified": {
+            "type": "boolean",
+            "title": "Emailverified"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "permissions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Permissions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "organizationId",
+          "email",
+          "emailVerified",
+          "status",
+          "role",
+          "permissions"
+        ],
+        "title": "SignupVerifyUser"
+      },
+      "TimeSensitivity": {
+        "type": "string",
+        "enum": [
+          "minutes",
+          "hours",
+          "same_day",
+          "few_days",
+          "rarely_urgent"
+        ],
+        "title": "TimeSensitivity"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WorkspaceBaselineSummary": {
+        "properties": {
+          "modelVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modelversion"
+          },
+          "generatedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generatedat"
+          },
+          "overallRiskScore": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overallriskscore"
+          },
+          "riskLevel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risklevel"
+          },
+          "focusAreas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Focusareas"
+          },
+          "hypothesesCount": {
+            "type": "integer",
+            "title": "Hypothesescount",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "WorkspaceBaselineSummary"
+      },
+      "WorkspaceBootstrapResponse": {
+        "properties": {
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspaceBootstrapSummary"
+          },
+          "baselineSummary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WorkspaceBaselineSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "nextSteps": {
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceNextStep"
+            },
+            "type": "array",
+            "title": "Nextsteps"
+          },
+          "autoMonitoringEnabled": {
+            "type": "boolean",
+            "title": "Automonitoringenabled"
+          }
+        },
+        "type": "object",
+        "required": [
+          "workspace",
+          "autoMonitoringEnabled"
+        ],
+        "title": "WorkspaceBootstrapResponse"
+      },
+      "WorkspaceBootstrapSummary": {
+        "properties": {
+          "organizationId": {
+            "type": "integer",
+            "title": "Organizationid"
+          },
+          "organizationName": {
+            "type": "string",
+            "title": "Organizationname"
+          },
+          "organizationSlug": {
+            "type": "string",
+            "title": "Organizationslug"
+          },
+          "userId": {
+            "type": "integer",
+            "title": "Userid"
+          },
+          "userEmail": {
+            "type": "string",
+            "title": "Useremail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "organizationId",
+          "organizationName",
+          "organizationSlug",
+          "userId",
+          "userEmail"
+        ],
+        "title": "WorkspaceBootstrapSummary"
+      },
+      "WorkspaceNextStep": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "title",
+          "description"
+        ],
+        "title": "WorkspaceNextStep"
+      }
+    }
+  }
+}

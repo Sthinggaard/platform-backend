@@ -1,0 +1,14 @@
+.env
+.env.local
+**/.env
+**/.env.local
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.bff-port
+.DS_Store

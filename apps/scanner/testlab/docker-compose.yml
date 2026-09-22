@@ -1,0 +1,37 @@
+version: "3.9"
+
+# Local, isolated scan target for developing and testing the Risklence
+# Scanner (apps/scanner). Nothing here is reachable outside the host —
+# both services sit on a dedicated bridge network and only publish to
+# 127.0.0.1, so a real Nmap/Nuclei test-scan has something safe to hit
+# without touching any other network the host is on.
+#
+# Usage:
+#   cd apps/scanner/testlab && docker compose up -d
+#   apps/scanner CLI test-scan target defaults to 127.0.0.1 (see README.md)
+
+networks:
+  scanner-testlab:
+    driver: bridge
+
+services:
+  testlab-web:
+    image: nginx:1.27-alpine
+    container_name: risklence-scanner-testlab-web
+    networks:
+      - scanner-testlab
+    ports:
+      - "127.0.0.1:8081:80"
+    volumes:
+      - ./nginx-content:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+  testlab-cache:
+    image: redis:7-alpine
+    container_name: risklence-scanner-testlab-cache
+    networks:
+      - scanner-testlab
+    ports:
+      - "127.0.0.1:6390:6379"
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    restart: unless-stopped
