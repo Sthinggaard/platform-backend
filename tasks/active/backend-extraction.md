@@ -42,4 +42,4 @@ Compose configuration passed with the sample copied to ignored `.env.local`. Tar
 
 ## Handoff and residual risk
 
-The new repository is a point-in-time snapshot. Subsequent backend changes in the original repository will not flow here automatically. The existing deployment pipelines still build from the original repository.
+Initial extraction commit: `f585877`. No remote configured. The new repository is a point-in-time snapshot. Subsequent backend changes in the original repository will not flow here automatically. The existing deployment pipelines still build from the original repository.
